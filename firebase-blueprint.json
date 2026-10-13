@@ -1,0 +1,34 @@
+{
+  "entities": {
+    "userProfile": {
+      "title": "User Profile",
+      "description": "Institutional operator profile and authorization audit record",
+      "type": "object",
+      "properties": {
+        "uid": {
+          "type": "string",
+          "description": "Firebase Authentication UID"
+        },
+        "email": {
+          "type": "string",
+          "description": "Operator Google account email"
+        },
+        "displayName": {
+          "type": "string",
+          "description": "Operator full name"
+        },
+        "lastLoginAt": {
+          "type": "string",
+          "description": "ISO timestamp of most recent gateway authentication"
+        }
+      },
+      "required": ["uid", "email"]
+    }
+  },
+  "firestore": {
+    "/users/{userId}": {
+      "schema": "userProfile",
+      "description": "Authenticated trader profile and audit record"
+    }
+  }
+}
