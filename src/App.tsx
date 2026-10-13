@@ -38,7 +38,7 @@ export default function App() {
     executeSimulationTrade,
   } = useMarketData();
 
-  const [theme, setTheme] = useState<AmbientTheme>('AURUM');
+  const [theme, setTheme] = useState<AmbientTheme>('CELESTIAL');
   const [activeView, setActiveView] = useState<
     'COMMAND' | 'CROSS_RV' | 'TERM_STRUCTURE' | 'LIFECYCLE' | 'BACKTEST' | 'BHAVCOPY' | 'SCENARIO'
   >('COMMAND');

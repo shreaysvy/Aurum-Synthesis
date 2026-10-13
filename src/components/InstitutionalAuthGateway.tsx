@@ -13,24 +13,104 @@ import {
 } from 'lucide-react';
 import { sound } from '../utils/audioEngine';
 
+export interface OperatorUser {
+  email: string;
+  displayName: string;
+  uid: string;
+  isAnonymous: boolean;
+  photoURL?: string | null;
+}
+
+export interface AuthContextType {
+  user: User | null;
+  simulatedUser: OperatorUser | null;
+  isFullyUnlocked: boolean;
+  signOut: () => Promise<void>;
+}
+
+export const AuthContext = React.createContext<AuthContextType>({
+  user: null,
+  simulatedUser: null,
+  isFullyUnlocked: false,
+  signOut: async () => {},
+});
+
+export const useOperatorAuth = () => React.useContext(AuthContext);
+
+export function OperatorBadge() {
+  const { user, simulatedUser, isFullyUnlocked, signOut } = useOperatorAuth();
+  const activeUser = user || simulatedUser;
+
+  if (!isFullyUnlocked && !activeUser) return null;
+
+  const email = activeUser?.email || 'hehe@gmail.com';
+  const initial = (email || 'H')[0].toUpperCase();
+
+  return (
+    <div className="flex items-center gap-2.5 rounded-full border border-white/10 bg-[#09090b]/95 px-3 py-1.5 backdrop-blur-xl shadow-xl transition-all hover:border-[#FFD700]/30 shrink-0">
+      <div className="flex h-6 w-6 items-center justify-center rounded-full bg-[#FFD700]/15 text-[#FFD700] text-xs font-bold ring-1 ring-[#FFD700]/30 overflow-hidden shrink-0">
+        {activeUser?.photoURL ? (
+          <img
+            src={activeUser.photoURL}
+            alt="Operator"
+            className="h-full w-full object-cover"
+            referrerPolicy="no-referrer"
+          />
+        ) : (
+          <span>{initial}</span>
+        )}
+      </div>
+      <div className="flex flex-col text-left">
+        <span className="font-mono text-[9px] font-bold text-[#10B981] flex items-center gap-1 leading-tight">
+          <span className="h-1.5 w-1.5 rounded-full bg-[#10B981] animate-pulse" />
+          OPERATOR VERIFIED
+        </span>
+        <span className="max-w-[150px] truncate font-mono text-[11px] text-[#A1A1AA] leading-tight">
+          {email}
+        </span>
+      </div>
+      <button
+        onClick={signOut}
+        title="Lock Gateway / Terminate Session"
+        className="ml-1 rounded p-1 text-[#71717A] hover:bg-white/10 hover:text-rose-400 transition-colors"
+      >
+        <LogOut className="h-3.5 w-3.5" />
+      </button>
+    </div>
+  );
+}
+
 interface InstitutionalAuthGatewayProps {
   children: React.ReactNode;
 }
 
 export function InstitutionalAuthGateway({ children }: InstitutionalAuthGatewayProps) {
   const [user, setUser] = useState<User | null>(null);
-  const [simulatedUser, setSimulatedUser] = useState<{
-    email: string;
-    displayName: string;
-    uid: string;
-    isAnonymous: boolean;
-    photoURL?: string | null;
-  } | null>(null);
+  const [simulatedUser, setSimulatedUser] = useState<OperatorUser | null>(() => {
+    try {
+      const saved = sessionStorage.getItem('aurum_operator_session');
+      return saved ? JSON.parse(saved) : null;
+    } catch {
+      return null;
+    }
+  });
   const [isInitializing, setIsInitializing] = useState<boolean>(true);
   const [authMethodInProgress, setAuthMethodInProgress] = useState<'google' | 'email' | null>(null);
-  const [isVerified, setIsVerified] = useState<boolean>(false);
+  const [isVerified, setIsVerified] = useState<boolean>(() => {
+    try {
+      return Boolean(sessionStorage.getItem('aurum_operator_session'));
+    } catch {
+      return false;
+    }
+  });
   const [isFadingOut, setIsFadingOut] = useState<boolean>(false);
-  const [isFullyUnlocked, setIsFullyUnlocked] = useState<boolean>(false);
+  const [isFullyUnlocked, setIsFullyUnlocked] = useState<boolean>(() => {
+    try {
+      return Boolean(sessionStorage.getItem('aurum_operator_session'));
+    } catch {
+      return false;
+    }
+  });
   const [authError, setAuthError] = useState<string | null>(null);
 
   // Email/Password form state
@@ -44,13 +124,20 @@ export function InstitutionalAuthGateway({ children }: InstitutionalAuthGatewayP
       setIsInitializing(false);
 
       if (currentUser) {
-        // If already authenticated on initial page mount, unlock immediately
         setIsVerified(true);
         setIsFullyUnlocked(true);
       } else {
-        setIsVerified(false);
-        setIsFadingOut(false);
-        setIsFullyUnlocked(false);
+        const savedSession = sessionStorage.getItem('aurum_operator_session');
+        if (savedSession) {
+          try {
+            setSimulatedUser(JSON.parse(savedSession));
+            setIsVerified(true);
+            setIsFullyUnlocked(true);
+            return;
+          } catch {
+            // pass
+          }
+        }
       }
     });
 
@@ -119,12 +206,18 @@ export function InstitutionalAuthGateway({ children }: InstitutionalAuthGatewayP
     setAuthMethodInProgress('email');
 
     // Simulate validation verification without server roundtrip (Zero Firebase Backend Dependency)
-    setSimulatedUser({
+    const newSimUser: OperatorUser = {
       email: cleanEmail,
       displayName: cleanEmail.split('@')[0].toUpperCase(),
       uid: `OP-${Math.random().toString(36).substring(2, 10).toUpperCase()}`,
       isAnonymous: false,
-    });
+    };
+    setSimulatedUser(newSimUser);
+    try {
+      sessionStorage.setItem('aurum_operator_session', JSON.stringify(newSimUser));
+    } catch {
+      // pass
+    }
 
     // Execute seamless unlock sequence: show CREDENTIALS VERIFIED for 600ms, then fade and unblur
     triggerLosslessUnlockSequence();
@@ -133,6 +226,11 @@ export function InstitutionalAuthGateway({ children }: InstitutionalAuthGatewayP
   const handleSignOut = async () => {
     sound.playClick();
     setSimulatedUser(null);
+    try {
+      sessionStorage.removeItem('aurum_operator_session');
+    } catch {
+      // pass
+    }
     setIsVerified(false);
     setIsFadingOut(false);
     setIsFullyUnlocked(false);
@@ -146,66 +244,30 @@ export function InstitutionalAuthGateway({ children }: InstitutionalAuthGatewayP
   const isBusy = authMethodInProgress !== null || isInitializing;
 
   return (
-    <div className="relative min-h-screen w-full bg-[#000000]">
-      {/* 
-        LOSSLESS ACTIVE TRADING DASHBOARD 
-        Underneath the gateway, child components run seamlessly.
-        When unauthenticated, pointer events and selection are disabled,
-        and underlying metrics are dimly visible through the frosted glass.
-      */}
-      <div
-        className={`w-full min-h-screen transition-all duration-700 ${
-          !isFullyUnlocked
-            ? 'pointer-events-none select-none filter blur-[3px] opacity-40 scale-[0.995]'
-            : 'pointer-events-auto select-auto filter blur-none opacity-100 scale-100'
-        }`}
-      >
-        {children}
-      </div>
-
-      {/* Floating Operator Session Pill when Unlocked */}
-      {isFullyUnlocked && (user || simulatedUser) && (
-        (() => {
-          const activeUser = user || simulatedUser;
-          if (!activeUser) return null;
-          return (
-            <div className="fixed top-3 right-4 z-40 hidden sm:flex items-center gap-2.5 rounded-full border border-white/10 bg-[#09090b]/90 px-3.5 py-1.5 backdrop-blur-xl shadow-2xl transition-all hover:border-[#FFD700]/40">
-              <div className="flex h-6 w-6 items-center justify-center rounded-full bg-[#FFD700]/15 text-[#FFD700] text-xs font-bold ring-1 ring-[#FFD700]/30 overflow-hidden">
-                {activeUser.photoURL ? (
-                  <img
-                    src={activeUser.photoURL}
-                    alt="Operator"
-                    className="h-full w-full object-cover"
-                    referrerPolicy="no-referrer"
-                  />
-                ) : activeUser.isAnonymous ? (
-                  <Terminal className="h-3.5 w-3.5 text-[#FFD700]" />
-                ) : (
-                  <span>{(activeUser.email || 'OP')[0].toUpperCase()}</span>
-                )}
-              </div>
-              <div className="flex flex-col text-left">
-                <span className="font-mono text-[9px] font-bold text-[#10B981] flex items-center gap-1">
-                  <span className="h-1.5 w-1.5 rounded-full bg-[#10B981] animate-pulse" />
-                  {activeUser.isAnonymous ? 'GUEST TERMINAL' : 'OPERATOR VERIFIED'}
-                </span>
-                <span className="max-w-[150px] truncate font-mono text-[11px] text-[#A1A1AA]">
-                  {activeUser.isAnonymous
-                    ? `UID: ${activeUser.uid.slice(0, 10)}...`
-                    : activeUser.email || activeUser.displayName || 'Authorized'}
-                </span>
-              </div>
-              <button
-                onClick={handleSignOut}
-                title="Lock Gateway / Terminate Session"
-                className="ml-1 rounded p-1 text-[#71717A] hover:bg-white/10 hover:text-rose-400 transition-colors"
-              >
-                <LogOut className="h-3.5 w-3.5" />
-              </button>
-            </div>
-          );
-        })()
-      )}
+    <AuthContext.Provider
+      value={{
+        user,
+        simulatedUser,
+        isFullyUnlocked,
+        signOut: handleSignOut,
+      }}
+    >
+      <div className="relative min-h-screen w-full bg-[#000000]">
+        {/* 
+          LOSSLESS ACTIVE TRADING DASHBOARD 
+          Underneath the gateway, child components run seamlessly.
+          When unauthenticated, pointer events and selection are disabled,
+          and underlying metrics are dimly visible through the frosted glass.
+        */}
+        <div
+          className={`w-full min-h-screen transition-all duration-700 ${
+            !isFullyUnlocked
+              ? 'pointer-events-none select-none filter blur-[3px] opacity-40 scale-[0.995]'
+              : 'pointer-events-auto select-auto filter blur-none opacity-100 scale-100'
+          }`}
+        >
+          {children}
+        </div>
 
       {/* 
         INSTITUTIONAL GATEWAY MODAL OVERLAY 
@@ -353,7 +415,7 @@ export function InstitutionalAuthGateway({ children }: InstitutionalAuthGatewayP
                         required
                         value={emailInput}
                         onChange={(e) => setEmailInput(e.target.value)}
-                        placeholder="> input_secure_email..."
+                        placeholder="example@gmail.com"
                         className="w-full bg-black px-2 py-1.5 font-mono text-xs text-[#F8F9FA] placeholder:text-zinc-600 border-0 border-b border-zinc-700 outline-none transition-colors focus:border-[#10B981] focus:shadow-[0_2px_8px_rgba(16,185,129,0.2)]"
                       />
                     </div>
@@ -368,7 +430,7 @@ export function InstitutionalAuthGateway({ children }: InstitutionalAuthGatewayP
                         required
                         value={passwordInput}
                         onChange={(e) => setPasswordInput(e.target.value)}
-                        placeholder="> input_access_key..."
+                        placeholder="••••••••"
                         className="w-full bg-black px-2 py-1.5 font-mono text-xs text-[#F8F9FA] placeholder:text-zinc-600 border-0 border-b border-zinc-700 outline-none transition-colors focus:border-[#10B981] focus:shadow-[0_2px_8px_rgba(16,185,129,0.2)]"
                       />
                     </div>
@@ -423,6 +485,7 @@ export function InstitutionalAuthGateway({ children }: InstitutionalAuthGatewayP
           </div>
         </div>
       )}
-    </div>
+      </div>
+    </AuthContext.Provider>
   );
 }

@@ -19,6 +19,7 @@ import { ContractPriceTick, MacroVariables } from '../types/market';
 import { calculateSyntheticFairValue } from '../utils/pricingEngine';
 import { sound } from '../utils/audioEngine';
 import { AmbientTheme } from './AmbientBackground';
+import { OperatorBadge } from './InstitutionalAuthGateway';
 
 interface HeaderProps {
   macro: MacroVariables;
@@ -70,63 +71,74 @@ export const Header: React.FC<HeaderProps> = ({
 
   const cycleTheme = () => {
     sound.playClick();
-    if (theme === 'AURUM') setTheme('CELESTIAL');
-    else if (theme === 'CELESTIAL') setTheme('VELVET');
-    else setTheme('AURUM');
+    if (theme === 'CELESTIAL') setTheme('AURUM');
+    else if (theme === 'AURUM') setTheme('VELVET');
+    else setTheme('CELESTIAL');
   };
 
   return (
-    <header className="sticky top-0 z-40 w-full border-b border-white/[0.06] bg-[#07090E]/80 backdrop-blur-xl">
+    <header className="sticky top-0 z-40 w-full border-b border-white/[0.06] bg-[#07090E]/85 backdrop-blur-xl">
       {/* Top Spacious Institutional Bar */}
-      <div className="mx-auto flex h-16 max-w-[1600px] items-center justify-between px-6 lg:px-10">
+      <div className="mx-auto flex h-16 max-w-[1600px] items-center justify-between px-6 lg:px-10 gap-4">
         {/* Brand Lockup */}
-        <div className="flex items-center gap-4 shrink-0">
+        <div className="flex items-center gap-3.5 shrink-0">
           <div className="flex h-9 w-9 items-center justify-center rounded-xl border border-[#FFD700]/30 bg-[#FFD700]/10 shadow-[0_0_15px_rgba(255,215,0,0.15)]">
             <span className="font-mono text-sm font-extrabold text-[#FFD700]">Au</span>
           </div>
           <div>
-            <span className="text-base font-extrabold tracking-[0.22em] text-[#F8F9FA] uppercase">
+            <span className="text-sm sm:text-base font-extrabold tracking-[0.22em] text-[#F8F9FA] uppercase leading-tight">
               AURUM SYNTHESIS
             </span>
-            <div className="text-[11px] font-medium tracking-wider text-[#71717A]">
+            <div className="text-[10px] sm:text-[11px] font-medium tracking-wider text-[#71717A] leading-tight">
               COMMODITY INTELLIGENCE ORACLE
             </div>
           </div>
         </div>
 
-        {/* The Alpha Real-Time Ticker (Visible, 2-Decimal Precision & Live Ticking) */}
-        <div className="hidden md:flex items-center gap-6 rounded-xl border border-white/[0.08] bg-black/40 px-5 py-2 shadow-inner backdrop-blur-md">
-          <div className="flex items-center gap-2 text-xs">
-            <span className="font-medium text-[#71717A]">SFV PARITY</span>
-            <span className="font-mono font-bold tabular-nums text-[#F8F9FA]">
+        {/* The Core Parity Bar: Condensed to 4 Critical Indicators */}
+        <div className="hidden lg:flex items-center gap-5 xl:gap-6 rounded-xl border border-white/[0.08] bg-black/50 px-5 py-2 shadow-inner backdrop-blur-md">
+          {/* 1. SFV PARITY */}
+          <div className="flex items-baseline gap-2">
+            <span className="text-[10px] font-bold uppercase tracking-wider text-[#71717A]">
+              SFV PARITY
+            </span>
+            <span className="font-mono text-sm sm:text-base font-bold tabular-nums text-[#F8F9FA]">
               ₹{sfv995.toLocaleString('en-IN', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}
             </span>
           </div>
 
-          <span className="h-3 w-px bg-white/10" aria-hidden="true" />
+          <span className="h-4 w-px bg-white/10" aria-hidden="true" />
 
-          <div className="flex items-center gap-2 text-xs">
-            <span className="font-medium text-[#71717A]">MCX GOLDM</span>
-            <div className="flex items-center gap-1.5 font-mono font-bold tabular-nums text-[#F8F9FA]">
+          {/* 2. MCX GOLDM */}
+          <div className="flex items-baseline gap-2">
+            <span className="text-[10px] font-bold uppercase tracking-wider text-[#71717A]">
+              MCX GOLDM
+            </span>
+            <div className="flex items-center gap-1.5 font-mono text-sm sm:text-base font-bold tabular-nums text-[#F8F9FA]">
               <span>
                 ₹{goldmTick.quotePrice.toLocaleString('en-IN', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}
               </span>
               <span
-                className={`text-[10px] px-1 py-0.2 rounded font-bold transition-colors ${
-                  (tickDeltas?.GOLDM ?? 0) >= 0 ? 'bg-emerald-500/20 text-emerald-400' : 'bg-rose-500/20 text-rose-400'
+                className={`text-[10px] px-1.5 py-0.5 rounded font-bold transition-colors ${
+                  (tickDeltas?.GOLDM ?? 0) >= 0
+                    ? 'bg-emerald-500/20 text-emerald-400'
+                    : 'bg-rose-500/20 text-rose-400'
                 }`}
               >
-                {(tickDeltas?.GOLDM ?? 0) >= 0 ? '▲ +' : '▼ -'}₹{Math.abs(tickDeltas?.GOLDM ?? 0).toFixed(2)}
+                {(tickDeltas?.GOLDM ?? 0) >= 0 ? '+' : '-'}₹{Math.abs(tickDeltas?.GOLDM ?? 0).toFixed(2)}
               </span>
             </div>
           </div>
 
-          <span className="h-3 w-px bg-white/10" aria-hidden="true" />
+          <span className="h-4 w-px bg-white/10" aria-hidden="true" />
 
-          <div className="flex items-center gap-2 text-xs">
-            <span className="font-medium text-[#71717A]">ARBITRAGE GAP</span>
+          {/* 3. ARBITRAGE GAP */}
+          <div className="flex items-baseline gap-2">
+            <span className="text-[10px] font-bold uppercase tracking-wider text-[#71717A]">
+              ARBITRAGE GAP
+            </span>
             <span
-              className={`font-mono font-bold tabular-nums ${
+              className={`font-mono text-sm sm:text-base font-bold tabular-nums ${
                 isDiscount ? 'text-[#FFD700] gold-text-glow' : 'text-[#EF4444]'
               }`}
             >
@@ -134,19 +146,20 @@ export const Header: React.FC<HeaderProps> = ({
             </span>
           </div>
 
-          <span className="h-3 w-px bg-white/10" aria-hidden="true" />
+          <span className="h-4 w-px bg-white/10" aria-hidden="true" />
 
-          <div className="flex items-center gap-2 text-[11px] font-bold text-[#FFD700]">
+          {/* 4. ALPHA WINDOW */}
+          <div className="flex items-center gap-2 rounded-lg bg-[#FFD700]/10 border border-[#FFD700]/25 px-2.5 py-1 text-[11px] font-bold text-[#FFD700]">
             <span className="relative flex h-2 w-2">
-              <span className="absolute inline-flex h-full w-full animate-ping rounded-full bg-[#FFD700] opacity-75"></span>
-              <span className="relative inline-flex h-2 w-2 rounded-full bg-[#FFD700]"></span>
+              <span className="absolute inline-flex h-full w-full animate-ping rounded-full bg-[#FFD700] opacity-75" />
+              <span className="relative inline-flex h-2 w-2 rounded-full bg-[#FFD700]" />
             </span>
-            <span>ALPHA WINDOW</span>
+            <span className="tracking-wider">ALPHA WINDOW</span>
           </div>
         </div>
 
-        {/* Right Action & Theme Controls */}
-        <div className="flex items-center gap-3 shrink-0">
+        {/* Right Primary Action & Theme Controls */}
+        <div className="flex items-center gap-2.5 sm:gap-3 shrink-0">
           {/* Background Theme Switcher */}
           <button
             onClick={cycleTheme}
@@ -155,7 +168,7 @@ export const Header: React.FC<HeaderProps> = ({
           >
             <Palette className="h-3.5 w-3.5 text-[#FFD700]" />
             <span className="hidden sm:inline capitalize">
-              {theme === 'AURUM' ? 'Aurum Gold' : theme === 'CELESTIAL' ? 'Celestial Noir' : 'Velvet Smoke'}
+              {theme === 'CELESTIAL' ? 'Celestial Noir' : theme === 'AURUM' ? 'Aurum Gold' : 'Velvet Smoke'}
             </span>
           </button>
 
@@ -215,12 +228,12 @@ export const Header: React.FC<HeaderProps> = ({
         </div>
       </div>
 
-      {/* Navigation Sub-Tab Bar (Spacious, Clean & Uncluttered) */}
+      {/* Navigation Sub-Tab Bar & Repositioned Operator Section */}
       <div className="mx-auto flex max-w-[1600px] items-center justify-between border-t border-white/[0.05] px-6 lg:px-10">
-        <nav className="flex items-center gap-2 overflow-x-auto py-2.5 text-xs no-scrollbar">
+        <nav className="flex items-center gap-1.5 overflow-x-auto py-2 text-xs no-scrollbar">
           <button
             onClick={() => setActiveView('COMMAND')}
-            className={`flex items-center gap-2.5 rounded-lg px-4 py-2 font-semibold transition-all whitespace-nowrap ${
+            className={`flex items-center gap-2 rounded-lg px-3.5 py-1.5 font-semibold transition-all whitespace-nowrap ${
               activeView === 'COMMAND'
                 ? 'border border-[#FFD700]/40 bg-[#FFD700]/10 text-[#FFD700] shadow-[0_0_12px_rgba(255,215,0,0.15)]'
                 : 'text-[#888888] hover:text-[#F8F9FA] hover:bg-white/[0.03]'
@@ -232,7 +245,7 @@ export const Header: React.FC<HeaderProps> = ({
 
           <button
             onClick={() => setActiveView('CROSS_RV')}
-            className={`flex items-center gap-2.5 rounded-lg px-4 py-2 font-semibold transition-all whitespace-nowrap ${
+            className={`flex items-center gap-2 rounded-lg px-3.5 py-1.5 font-semibold transition-all whitespace-nowrap ${
               activeView === 'CROSS_RV'
                 ? 'border border-[#FFD700]/40 bg-[#FFD700]/10 text-[#FFD700] shadow-[0_0_12px_rgba(255,215,0,0.15)]'
                 : 'text-[#888888] hover:text-[#F8F9FA] hover:bg-white/[0.03]'
@@ -244,7 +257,7 @@ export const Header: React.FC<HeaderProps> = ({
 
           <button
             onClick={() => setActiveView('TERM_STRUCTURE')}
-            className={`flex items-center gap-2.5 rounded-lg px-4 py-2 font-semibold transition-all whitespace-nowrap ${
+            className={`flex items-center gap-2 rounded-lg px-3.5 py-1.5 font-semibold transition-all whitespace-nowrap ${
               activeView === 'TERM_STRUCTURE'
                 ? 'border border-[#FFD700]/40 bg-[#FFD700]/10 text-[#FFD700] shadow-[0_0_12px_rgba(255,215,0,0.15)]'
                 : 'text-[#888888] hover:text-[#F8F9FA] hover:bg-white/[0.03]'
@@ -256,7 +269,7 @@ export const Header: React.FC<HeaderProps> = ({
 
           <button
             onClick={() => setActiveView('LIFECYCLE')}
-            className={`flex items-center gap-2.5 rounded-lg px-4 py-2 font-semibold transition-all whitespace-nowrap ${
+            className={`flex items-center gap-2 rounded-lg px-3.5 py-1.5 font-semibold transition-all whitespace-nowrap ${
               activeView === 'LIFECYCLE'
                 ? 'border border-[#FFD700]/40 bg-[#FFD700]/10 text-[#FFD700] shadow-[0_0_12px_rgba(255,215,0,0.15)]'
                 : 'text-[#888888] hover:text-[#F8F9FA] hover:bg-white/[0.03]'
@@ -268,7 +281,7 @@ export const Header: React.FC<HeaderProps> = ({
 
           <button
             onClick={() => setActiveView('BACKTEST')}
-            className={`flex items-center gap-2.5 rounded-lg px-4 py-2 font-semibold transition-all whitespace-nowrap ${
+            className={`flex items-center gap-2 rounded-lg px-3.5 py-1.5 font-semibold transition-all whitespace-nowrap ${
               activeView === 'BACKTEST'
                 ? 'border border-[#FFD700]/40 bg-[#FFD700]/10 text-[#FFD700] shadow-[0_0_12px_rgba(255,215,0,0.15)]'
                 : 'text-[#888888] hover:text-[#F8F9FA] hover:bg-white/[0.03]'
@@ -280,7 +293,7 @@ export const Header: React.FC<HeaderProps> = ({
 
           <button
             onClick={() => setActiveView('SCENARIO')}
-            className={`flex items-center gap-2.5 rounded-lg px-4 py-2 font-semibold transition-all whitespace-nowrap ${
+            className={`flex items-center gap-2 rounded-lg px-3.5 py-1.5 font-semibold transition-all whitespace-nowrap ${
               activeView === 'SCENARIO'
                 ? 'border border-[#FFD700]/40 bg-[#FFD700]/10 text-[#FFD700] shadow-[0_0_12px_rgba(255,215,0,0.15)]'
                 : 'text-[#888888] hover:text-[#F8F9FA] hover:bg-white/[0.03]'
@@ -292,7 +305,7 @@ export const Header: React.FC<HeaderProps> = ({
 
           <button
             onClick={() => setActiveView('BHAVCOPY')}
-            className={`flex items-center gap-2.5 rounded-lg px-4 py-2 font-semibold transition-all whitespace-nowrap ${
+            className={`flex items-center gap-2 rounded-lg px-3.5 py-1.5 font-semibold transition-all whitespace-nowrap ${
               activeView === 'BHAVCOPY'
                 ? 'border border-[#FFD700]/40 bg-[#FFD700]/10 text-[#FFD700] shadow-[0_0_12px_rgba(255,215,0,0.15)]'
                 : 'text-[#888888] hover:text-[#F8F9FA] hover:bg-white/[0.03]'
@@ -303,132 +316,34 @@ export const Header: React.FC<HeaderProps> = ({
           </button>
         </nav>
 
-        {/* Exchange Latency Status */}
-        <div className="hidden lg:flex items-center gap-3 text-xs font-mono text-[#71717A]">
-          <span>COMEX/MCX REALTIME</span>
-          <span className="flex items-center gap-1.5 text-emerald-400 font-bold">
-            <span className="h-1.5 w-1.5 rounded-full bg-emerald-400 animate-pulse" />
-            45ms
-          </span>
-        </div>
-      </div>
-
-      {/* Real-time Institutional Live Feed Tape */}
-      <div className="border-t border-white/[0.05] bg-black/60 px-6 lg:px-10 py-2 overflow-x-auto no-scrollbar shadow-inner">
-        <div className="mx-auto flex max-w-[1600px] items-center justify-between gap-6 min-w-[960px]">
-          {/* Live Status Pill */}
-          <div className="flex items-center gap-2.5 text-[11px] font-mono text-[#A1A1AA] shrink-0">
-            <span className="relative flex h-2 w-2">
+        {/* Right Status Indicators & Repositioned Operator Badge */}
+        <div className="flex items-center gap-4 shrink-0 pl-4 py-2 mr-4">
+          {/* Muted Quiet Live Feed line */}
+          <div className="hidden 2xl:flex items-center gap-2 text-[11px] font-mono text-[#71717A]">
+            <span className="relative flex h-1.5 w-1.5">
               <span className="absolute inline-flex h-full w-full animate-ping rounded-full bg-emerald-400 opacity-80" />
-              <span className="relative inline-flex h-2 w-2 rounded-full bg-emerald-400" />
+              <span className="relative inline-flex h-1.5 w-1.5 rounded-full bg-emerald-400" />
             </span>
-            <span className="font-bold text-emerald-400 tracking-wider">LIVE FEED</span>
-            <span className="text-white/20">·</span>
-            <span className="tabular-nums text-[#888888]">
+            <span className="text-emerald-400/80 font-bold">LIVE FEED</span>
+            <span>•</span>
+            <span className="tabular-nums">
               {lastTickTime.toLocaleTimeString('en-IN', { hour12: false })}.{String(lastTickTime.getMilliseconds()).padStart(3, '0')} IST
             </span>
-            <span className="text-white/20">·</span>
-            <span className="text-[10px] text-[#71717A]">Tick #{tickCount}</span>
+            <span>•</span>
+            <span>Tick #{tickCount}</span>
           </div>
 
-          {/* Continuous Live Price Feed for all contracts */}
-          <div className="flex items-center gap-5 text-xs font-mono">
-            {/* COMEX GC */}
-            <div className="flex items-center gap-1.5">
-              <span className="text-[#71717A] text-[11px]">COMEX GC:</span>
-              <span className="font-bold text-[#F8F9FA] tabular-nums">
-                ${macro.comexGoldUsdOz.toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}
-              </span>
-              <span className={`text-[10px] font-bold ${
-                (tickDeltas?.COMEX ?? 0) >= 0 ? 'text-emerald-400' : 'text-rose-400'
-              }`}>
-                {(tickDeltas?.COMEX ?? 0) >= 0 ? '▲ +' : '▼ -'}${Math.abs(tickDeltas?.COMEX ?? 0).toFixed(2)}
-              </span>
-            </div>
-
-            <span className="h-2.5 w-px bg-white/10" />
-
-            {/* USD/INR */}
-            <div className="flex items-center gap-1.5">
-              <span className="text-[#71717A] text-[11px]">USD/INR:</span>
-              <span className="font-bold text-[#F8F9FA] tabular-nums">
-                ₹{macro.usdInr.toFixed(4)}
-              </span>
-              <span className={`text-[10px] font-bold ${
-                (tickDeltas?.USDINR ?? 0) >= 0 ? 'text-emerald-400' : 'text-rose-400'
-              }`}>
-                {(tickDeltas?.USDINR ?? 0) >= 0 ? '▲ +' : '▼ -'}{Math.abs(tickDeltas?.USDINR ?? 0).toFixed(4)}
-              </span>
-            </div>
-
-            <span className="h-2.5 w-px bg-white/10" />
-
-            {/* MCX GOLDM */}
-            <div className="flex items-center gap-1.5">
-              <span className="text-[#FFD700] text-[11px] font-bold">GOLDM:</span>
-              <span className="font-extrabold text-[#F8F9FA] tabular-nums">
-                ₹{ticks?.GOLDM?.quotePrice.toLocaleString('en-IN', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}
-              </span>
-              <span className={`text-[10px] font-bold ${
-                (tickDeltas?.GOLDM ?? 0) >= 0 ? 'text-emerald-400' : 'text-rose-400'
-              }`}>
-                {(tickDeltas?.GOLDM ?? 0) >= 0 ? '▲ +' : '▼ -'}₹{Math.abs(tickDeltas?.GOLDM ?? 0).toFixed(2)}
-              </span>
-            </div>
-
-            <span className="h-2.5 w-px bg-white/10" />
-
-            {/* MCX GOLDTEN */}
-            <div className="flex items-center gap-1.5">
-              <span className="text-[#A1A1AA] text-[11px]">GOLDTEN:</span>
-              <span className="font-bold text-[#F8F9FA] tabular-nums">
-                ₹{ticks?.GOLDTEN?.quotePrice.toLocaleString('en-IN', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}
-              </span>
-              <span className={`text-[10px] font-bold ${
-                (tickDeltas?.GOLDTEN ?? 0) >= 0 ? 'text-emerald-400' : 'text-rose-400'
-              }`}>
-                {(tickDeltas?.GOLDTEN ?? 0) >= 0 ? '▲ +' : '▼ -'}₹{Math.abs(tickDeltas?.GOLDTEN ?? 0).toFixed(2)}
-              </span>
-            </div>
-
-            <span className="h-2.5 w-px bg-white/10" />
-
-            {/* MCX GOLDGUINEA */}
-            <div className="flex items-center gap-1.5">
-              <span className="text-[#71717A] text-[11px]">GUINEA:</span>
-              <span className="font-bold text-[#F8F9FA] tabular-nums">
-                ₹{ticks?.GOLDGUINEA?.quotePrice.toLocaleString('en-IN', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}
-              </span>
-              <span className={`text-[10px] font-bold ${
-                (tickDeltas?.GOLDGUINEA ?? 0) >= 0 ? 'text-emerald-400' : 'text-rose-400'
-              }`}>
-                {(tickDeltas?.GOLDGUINEA ?? 0) >= 0 ? '▲ +' : '▼ -'}₹{Math.abs(tickDeltas?.GOLDGUINEA ?? 0).toFixed(2)}
-              </span>
-            </div>
-
-            <span className="h-2.5 w-px bg-white/10" />
-
-            {/* MCX GOLDPETAL */}
-            <div className="flex items-center gap-1.5">
-              <span className="text-[#71717A] text-[11px]">PETAL:</span>
-              <span className="font-bold text-[#F8F9FA] tabular-nums">
-                ₹{ticks?.GOLDPETAL?.quotePrice.toLocaleString('en-IN', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}
-              </span>
-              <span className={`text-[10px] font-bold ${
-                (tickDeltas?.GOLDPETAL ?? 0) >= 0 ? 'text-emerald-400' : 'text-rose-400'
-              }`}>
-                {(tickDeltas?.GOLDPETAL ?? 0) >= 0 ? '▲ +' : '▼ -'}₹{Math.abs(tickDeltas?.GOLDPETAL ?? 0).toFixed(2)}
-              </span>
-            </div>
-          </div>
-
-          {/* Right Parity summary */}
-          <div className="flex items-center gap-2 font-mono text-[11px] text-[#A1A1AA] shrink-0">
-            <span className="text-[#71717A]">SFV 995:</span>
-            <span className="text-[#FFD700] font-bold tabular-nums">
-              ₹{sfv995.toLocaleString('en-IN', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}
+          {/* Exchange Latency Status */}
+          <div className="hidden lg:flex items-center gap-2.5 text-xs font-mono text-[#71717A]">
+            <span>COMEX/MCX REALTIME</span>
+            <span className="flex items-center gap-1.5 text-emerald-400 font-bold">
+              <span className="h-1.5 w-1.5 rounded-full bg-emerald-400 animate-pulse" />
+              45ms
             </span>
           </div>
+
+          {/* Operator Verified Badge repositioned to navigation tab row */}
+          <OperatorBadge />
         </div>
       </div>
     </header>
