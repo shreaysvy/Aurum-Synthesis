@@ -1,62 +1,223 @@
 @import "tailwindcss";
 
+/* ===========================================================================
+   AURUM SYNTHESIS / THE ASSAY OFFICE
+   Paper and ink. Ruled lines. Struck brass. No shadows, no gradients, no glass.
+   =========================================================================== */
+
 @theme {
-  --font-sans: 'Plus Jakarta Sans', system-ui, -apple-system, sans-serif;
-  --font-mono: 'JetBrains Mono', ui-monospace, SFMono-Regular, monospace;
+  --font-display: 'Newsreader', Georgia, serif;
+  --font-ui: 'Schibsted Grotesk', system-ui, sans-serif;
+  --font-mono: 'IBM Plex Mono', ui-monospace, SFMono-Regular, monospace;
+
+  --color-ground: var(--ground);
+  --color-surface: var(--surface);
+  --color-sunken: var(--surface-sunken);
+  --color-hair: var(--rule-hair);
+  --color-rule: var(--rule-strong);
+  --color-ink: var(--ink);
+  --color-ink-2: var(--ink-secondary);
+  --color-ink-3: var(--ink-tertiary);
+  --color-brass: var(--brass);
+  --color-brass-pressed: var(--brass-pressed);
+  --color-brass-wash: var(--brass-wash);
+  --color-verdigris: var(--verdigris);
+  --color-oxblood: var(--oxblood);
+  --color-stale: var(--stale);
+
+  --radius-none: 0px;
+  --radius-punch: 2px;
 }
 
+/* ---------- Light: warm bone certificate stock (primary) ---------- */
 :root {
+  --ground: #F4F1EA;
+  --surface: #FAF8F3;
+  --surface-sunken: #EBE6DC;
+  --rule-hair: #DED7C9;
+  --rule-strong: #C4BBA8;
+  --ink: #14161A;
+  --ink-secondary: #3A3F45;
+  --ink-tertiary: #6B7076;
+  --brass: #A8812F;
+  --brass-pressed: #7A5E22;
+  --brass-wash: #F0E7D2;
+  --verdigris: #2F6B5E;
+  --oxblood: #8C3B35;
+  --stale: #8A857C;
+
+  --dur-state: 120ms;
+  --dur-hover: 200ms;
+  --dur-odo: 200ms;
+  --dur-view: 420ms;
+  --dur-draw: 850ms;
+
+  --ease-settle: cubic-bezier(0.16, 1, 0.3, 1);
+  --ease-strike: cubic-bezier(0.22, 1.08, 0.36, 1);
+  --ease-rule: cubic-bezier(0.4, 0, 0.2, 1);
+
+  color-scheme: light;
+}
+
+/* ---------- Dark: deep ink, struck brass ---------- */
+@media (prefers-color-scheme: dark) {
+  :root:not([data-theme="light"]) {
+    --ground: #0E1013;
+    --surface: #14161A;
+    --surface-sunken: #191C21;
+    --rule-hair: #272B30;
+    --rule-strong: #363B41;
+    --ink: #F4F1EA;
+    --ink-secondary: #BDB7AC;
+    --ink-tertiary: #8A857C;
+    --brass: #D6B76E;
+    --brass-pressed: #B8934A;
+    --brass-wash: #241E12;
+    --verdigris: #4A9183;
+    --oxblood: #B35C53;
+    --stale: #5C5952;
+    color-scheme: dark;
+  }
+}
+
+:root[data-theme="dark"] {
+  --ground: #0E1013;
+  --surface: #14161A;
+  --surface-sunken: #191C21;
+  --rule-hair: #272B30;
+  --rule-strong: #363B41;
+  --ink: #F4F1EA;
+  --ink-secondary: #BDB7AC;
+  --ink-tertiary: #8A857C;
+  --brass: #D6B76E;
+  --brass-pressed: #B8934A;
+  --brass-wash: #241E12;
+  --verdigris: #4A9183;
+  --oxblood: #B35C53;
+  --stale: #5C5952;
   color-scheme: dark;
 }
 
+/* ---------- Base ---------- */
+*,
+*::before,
+*::after {
+  border-radius: 0;
+}
+
+html {
+  -webkit-text-size-adjust: 100%;
+}
+
 body {
-  font-family: var(--font-sans);
-  background-color: #07090E;
-  color: #F8F9FA;
+  margin: 0;
+  background-color: var(--ground);
+  color: var(--ink);
+  font-family: var(--font-ui);
+  font-size: 14px;
+  line-height: 20px;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
   overflow-x: hidden;
 }
 
-/* Institutional Tabular Numbers */
-.tabular-nums {
-  font-variant-numeric: tabular-nums;
+::selection {
+  background: var(--brass-wash);
+  color: var(--ink);
 }
 
-/* Custom subtle scrollbars */
-::-webkit-scrollbar {
-  width: 5px;
-  height: 5px;
+/* ---------- Type scale ---------- */
+.t-display-xl { font-family: var(--font-display); font-weight: 400; font-size: 72px; line-height: 76px; letter-spacing: -0.02em; }
+.t-display-l  { font-family: var(--font-display); font-weight: 400; font-size: 48px; line-height: 52px; letter-spacing: -0.015em; }
+.t-display-m  { font-family: var(--font-display); font-weight: 400; font-size: 32px; line-height: 38px; letter-spacing: -0.01em; }
+.t-body-l     { font-family: var(--font-display); font-weight: 400; font-size: 19px; line-height: 30px; }
+.t-body-m     { font-family: var(--font-display); font-weight: 400; font-size: 16px; line-height: 26px; }
+
+.t-label      { font-family: var(--font-ui); font-weight: 500; font-size: 11px; line-height: 14px; letter-spacing: 0.14em; text-transform: uppercase; }
+.t-label-s    { font-family: var(--font-ui); font-weight: 500; font-size: 10px; line-height: 12px; letter-spacing: 0.16em; text-transform: uppercase; }
+.t-ui         { font-family: var(--font-ui); font-weight: 450; font-size: 14px; line-height: 20px; letter-spacing: 0.005em; }
+
+.t-data-xl    { font-family: var(--font-mono); font-weight: 400; font-size: 40px; line-height: 44px; letter-spacing: -0.01em; }
+.t-data-l     { font-family: var(--font-mono); font-weight: 400; font-size: 24px; line-height: 28px; }
+.t-data-m     { font-family: var(--font-mono); font-weight: 400; font-size: 15px; line-height: 22px; }
+.t-data-s     { font-family: var(--font-mono); font-weight: 400; font-size: 12px; line-height: 16px; letter-spacing: 0.01em; }
+
+.t-data-xl, .t-data-l, .t-data-m, .t-data-s,
+table, .tnum {
+  font-variant-numeric: tabular-nums lining-nums;
 }
 
-::-webkit-scrollbar-track {
-  background: #080808;
+@media (max-width: 900px) {
+  .t-display-xl { font-size: 44px; line-height: 48px; }
+  .t-display-l  { font-size: 34px; line-height: 38px; }
+  .t-display-m  { font-size: 25px; line-height: 30px; }
+  .t-data-xl    { font-size: 30px; line-height: 34px; }
 }
 
-::-webkit-scrollbar-thumb {
-  background: #1f1f1f;
-  border-radius: 2px;
+/* ---------- Focus: struck brass, never removed ---------- */
+:where(a, button, input, select, textarea, [tabindex]):focus-visible {
+  outline: 2px solid var(--brass);
+  outline-offset: 2px;
 }
 
-::-webkit-scrollbar-thumb:hover {
-  background: #333333;
+/* ---------- Scrollbar: a ruled gutter ---------- */
+::-webkit-scrollbar { width: 10px; height: 10px; }
+::-webkit-scrollbar-track { background: var(--ground); border-left: 1px solid var(--rule-hair); }
+::-webkit-scrollbar-thumb { background: var(--rule-strong); }
+::-webkit-scrollbar-thumb:hover { background: var(--ink-tertiary); }
+
+/* ---------- Odometer ---------- */
+.odo { display: inline-flex; align-items: flex-end; line-height: 1; }
+.odo-col { display: inline-block; overflow: hidden; height: 1.12em; line-height: 1.12; vertical-align: bottom; }
+.odo-strip { display: flex; flex-direction: column; transition: transform var(--dur-odo) var(--ease-settle); }
+.odo-strip > span { height: 1.12em; line-height: 1.12; display: block; text-align: center; }
+
+/* ---------- Cross-hatch, the one permitted pattern fill (tender risk) ---------- */
+.hatch-brass {
+  background-image: repeating-linear-gradient(
+    45deg,
+    var(--brass) 0px,
+    var(--brass) 1px,
+    transparent 1px,
+    transparent 5px
+  );
+  opacity: 0.55;
 }
 
-/* Gold glow utilities */
-.gold-glow {
-  box-shadow: 0 0 25px rgba(255, 215, 0, 0.18), inset 0 0 15px rgba(255, 215, 0, 0.05);
+/* ---------- Draw ---------- */
+.draw-path {
+  stroke-dasharray: var(--len, 2000);
+  stroke-dashoffset: var(--len, 2000);
+  animation: draw var(--dur-draw) linear forwards;
 }
+@keyframes draw { to { stroke-dashoffset: 0; } }
 
-.gold-glow-subtle {
-  box-shadow: 0 0 15px rgba(255, 215, 0, 0.08);
+/* ---------- Stamp ---------- */
+@keyframes stamp {
+  0%   { transform: scale(1.08) rotate(1.5deg); opacity: 0; }
+  60%  { opacity: 1; }
+  100% { transform: scale(1) rotate(0deg); opacity: 1; }
 }
+.stamp-in { animation: stamp 180ms var(--ease-strike) forwards; }
 
-.gold-text-glow {
-  text-shadow: 0 0 12px rgba(255, 215, 0, 0.4);
+/* ---------- Reveal: a ledger page turning ---------- */
+@keyframes wipe {
+  from { clip-path: inset(0 0 100% 0); }
+  to   { clip-path: inset(0 0 0 0); }
 }
+.wipe-in { animation: wipe var(--dur-view) var(--ease-settle) forwards; }
 
-/* Grid pattern background */
-.bg-grid-subtle {
-  background-size: 32px 32px;
-  background-image: 
-    linear-gradient(to right, rgba(255, 255, 255, 0.015) 1px, transparent 1px),
-    linear-gradient(to bottom, rgba(255, 255, 255, 0.015) 1px, transparent 1px);
+/* ---------- Determinate load rule ---------- */
+@keyframes advance { from { transform: scaleX(0); } to { transform: scaleX(1); } }
+.load-rule { transform-origin: left; animation: advance 900ms var(--ease-rule) forwards; }
+
+/* ---------- Reduced motion ---------- */
+@media (prefers-reduced-motion: reduce) {
+  *, *::before, *::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+  }
+  .draw-path { stroke-dashoffset: 0; }
+  .odo-strip { transition: none; }
 }

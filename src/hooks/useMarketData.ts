@@ -164,7 +164,8 @@ export function useMarketData() {
     return () => clearInterval(timer);
   }, [isLive]);
 
-  // Main real-time live WebSocket tick loop (400ms rapid cadence)
+  // Generated tick loop. There is no feed and no socket: this is a random walk
+  // over the macro inputs, re-priced through the real SFV and cost engine.
   useEffect(() => {
     if (!isLive) return;
 
@@ -521,3 +522,5 @@ export function useMarketData() {
     executeSimulationTrade,
   };
 }
+
+export type MarketData = ReturnType<typeof useMarketData>;
