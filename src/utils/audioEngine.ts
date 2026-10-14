@@ -30,10 +30,10 @@ class AudioEngine {
       const gain = this.ctx.createGain();
 
       osc.type = 'sine';
-      osc.frequency.setValueAtTime(800, this.ctx.currentTime);
+      osc.frequency.setValueAtTime(520, this.ctx.currentTime);
       osc.frequency.exponentialRampToValueAtTime(200, this.ctx.currentTime + 0.04);
 
-      gain.gain.setValueAtTime(0.08, this.ctx.currentTime);
+      gain.gain.setValueAtTime(0.045, this.ctx.currentTime);
       gain.gain.exponentialRampToValueAtTime(0.001, this.ctx.currentTime + 0.04);
 
       osc.connect(gain);
@@ -64,7 +64,7 @@ class AudioEngine {
 
         const startTime = this.ctx.currentTime + idx * 0.04;
         gain.gain.setValueAtTime(0, this.ctx.currentTime);
-        gain.gain.setValueAtTime(0.06, startTime);
+        gain.gain.setValueAtTime(0.035, startTime);
         gain.gain.exponentialRampToValueAtTime(0.001, startTime + 0.45);
 
         osc.connect(gain);
